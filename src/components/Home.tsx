@@ -4,7 +4,6 @@ import { FcLike } from "react-icons/fc";
 import { IoBagOutline } from "react-icons/io5";
 import { MdOutlinePerson3 } from "react-icons/md";
 import Img1 from '../assets/earphone.png'
-import Img2 from '../assets/11.jpeg'
 import Cards from '../components/cards'
 
 
