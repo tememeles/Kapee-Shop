@@ -1,0 +1,34 @@
+import { Link } from 'react-router-dom';
+
+const Navbar = () => {
+  return (
+    <nav className="bg-yellow-400 text-black px-6 py-1 shadow-md">
+      <div className="flex justify-between items-center">
+        <div className="text-sm">
+          <select className="bg-yellow-400 text-black" name="English" id="">
+            <option value="">English</option>
+            <option value="">Duetch</option>
+            <option value="">French</option>
+            <option value="">عربي</option>
+          </select>
+          <select className="bg-yellow-400 text-black-sm" name="" id="">
+            <option value="">$DOLLAR(USA)</option>
+            <option value="">RUPEE(INR)</option>
+            <option value="">POUND(UK)</option>
+            <option value="">EURO(EUR)</option>
+          </select>
+          
+          </div>
+        <div className="flex space-x-6 b-white-300">
+          <Link to="/" className="hover:text-gray-300 transition">Welcome to our store</Link>
+          <Link to="/" className="hover:text-gray-300 transition">Blog</Link>
+          <Link to="/" className="hover:text-gray-300 transition">FAQ</Link>
+          <Link to="/" className="hover:text-gray-300 transition">Contact us</Link>
+          
+        </div>
+      </div>
+    </nav>
+  );
+}
+
+export default Navbar;
