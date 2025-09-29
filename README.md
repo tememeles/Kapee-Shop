@@ -1,69 +1,100 @@
-# React + TypeScript + Vite
+# 🛒 Kapee Shop - Complete E-commerce Platform
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern, full-stack e-commerce platform built with React, TypeScript, Node.js, and MongoDB. Features a comprehensive admin dashboard, shopping cart functionality, user authentication, and real-time data management.
 
-Currently, two official plugins are available:
+![GitHub repo size](https://img.shields.io/github/repo-size/tememeles/Kapee-Shop)
+![GitHub last commit](https://img.shields.io/github/last-commit/tememeles/Kapee-Shop)
+![GitHub issues](https://img.shields.io/github/issues/tememeles/Kapee-Shop)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## ✨ Features
 
-## Expanding the ESLint configuration
+### 🛍️ **Customer Features**
+- 🏠 **Modern Homepage** - Clean, responsive design with product showcase
+- 🔍 **Product Browsing** - Browse products by category with search functionality
+- 🛒 **Shopping Cart** - Add/remove items, update quantities, persistent cart
+- 👤 **User Authentication** - Register, login, and profile management
+- 📱 **Responsive Design** - Works seamlessly on all devices
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### 👑 **Admin Features**
+- 📊 **Dashboard Analytics** - Real-time statistics and charts
+- 👥 **User Management** - View, edit, and manage all users
+- 📦 **Product Management** - CRUD operations for products
+- 🖼️ **Image Upload** - Cloudinary integration for product images
+- 📋 **Order Management** - Track and manage customer orders
+- 🔒 **Role-based Access** - Admin-only protected routes
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 🛠️ Technology Stack
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+### **Frontend**
+- ⚛️ **React 19** - Latest React with concurrent features
+- 📘 **TypeScript** - Type-safe development
+- 🎨 **Tailwind CSS** - Utility-first CSS framework
+- 🚀 **Vite** - Fast build tool and dev server
+- 📊 **Recharts** - Beautiful data visualization
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### **Backend**
+- 🟢 **Node.js** - JavaScript runtime
+- 🚀 **Express.js** - Web application framework
+- 🗄️ **MongoDB** - NoSQL database
+- 🔗 **Mongoose** - MongoDB object modeling
+- 🔐 **bcrypt** - Password hashing
+- ☁️ **Cloudinary** - Image management service
+
+## 📦 Installation & Setup
+
+### **Prerequisites**
+- Node.js (v18 or higher)
+- MongoDB (local or cloud)
+- Cloudinary account (for image uploads)
+
+### **1. Clone Repository**
+```bash
+git clone https://github.com/tememeles/Kapee-Shop.git
+cd Kapee-Shop
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### **2. Frontend Setup**
+```bash
+npm install
+npm run dev
 ```
+
+### **3. Backend Setup**
+```bash
+cd server
+npm install
+npm run dev
+```
+
+### **4. Environment Configuration**
+Create `server/.env` with:
+```env
+PORT=5000
+MONGO_URI=mongodb://localhost:27017/kapee-shop
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+```
+
+## 🎯 Usage Guide
+
+### **For Customers**
+1. Browse products on the homepage
+2. Register for a new account or login
+3. Add products to cart
+4. Complete checkout process
+
+### **For Admins**
+1. Login with admin credentials
+2. Access dashboard at `/dashboard`
+3. Manage products, orders, and users
+4. View real-time analytics
+
+## 👨‍💻 Author
+
+**Teme Meles**
+- GitHub: [@tememeles](https://github.com/tememeles)
+
+---
+
+⭐ **Star this repository if you found it helpful!**
