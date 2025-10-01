@@ -88,16 +88,30 @@ export default function Dashboard() {
           axios.get('http://localhost:5000/api/products')
         ]);
 
+        // Debug logging
+        console.log('Dashboard API Responses:', {
+          users: usersResponse.data,
+          orders: ordersResponse.data,
+          products: productsResponse.data
+        });
+
         // Calculate total sales from orders
-        const orders: Order[] = ordersResponse.data;
+        const orders: Order[] = Array.isArray(ordersResponse.data) ? ordersResponse.data : [];
         const totalSales = orders.reduce((sum: number, order: Order) => {
-          return sum + (order.price * order.quantity);
+          const price = order.price || 0;
+          const quantity = order.quantity || 0;
+          return sum + (price * quantity);
         }, 0);
 
+        // Handle different API response structures
+        const users = usersResponse.data; // Direct array
+        const ordersData = ordersResponse.data; // Direct array
+        const productsData = productsResponse.data.products || productsResponse.data; // Handle both structures
+
         setStats({
-          totalUsers: usersResponse.data.length,
-          totalOrders: ordersResponse.data.length,
-          totalProducts: productsResponse.data.length,
+          totalUsers: Array.isArray(users) ? users.length : 0,
+          totalOrders: Array.isArray(ordersData) ? ordersData.length : 0,
+          totalProducts: Array.isArray(productsData) ? productsData.length : (productsResponse.data.count || 0),
           totalSales: totalSales
         });
         
@@ -113,8 +127,8 @@ export default function Dashboard() {
     fetchDashboardStats();
   }, []);
   return (
-    <div className="min-h-screen bg-gradient-to-br ml-[10rem] mt-[3rem] from-slate-50 to-slate-100 p-8">
-      <main className="max-w-7xl mx-auto grid grid-cols-12 gap-6">
+    <div className="min-h-screen bg-gradient-to-br ml-0 lg:ml-[10rem] mt-[4rem] lg:mt-[3rem] from-slate-50 to-slate-100 p-4 lg:p-8">
+      <main className="max-w-7xl mx-auto grid grid-cols-12 gap-4 lg:gap-6">
         {/* Error Display */}
         {error && (
           <div className="col-span-12 mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
@@ -123,10 +137,10 @@ export default function Dashboard() {
         )}
 
         {/* Cards */}
-        <div className="col-span-12 grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6">
+        <div className="col-span-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-6">
           <PatternCard 
             title="Total Sales" 
-            value={loading ? "Loading..." : `$${stats.totalSales.toLocaleString()}`} 
+            value={loading ? "Loading..." : `$${(stats.totalSales || 0).toLocaleString()}`} 
             patternId="p1"
           >
             <div className="text-xs text-white hover:translate-y-2 duration-700">
@@ -136,7 +150,7 @@ export default function Dashboard() {
 
           <PatternCard 
             title="Total Users" 
-            value={loading ? "Loading..." : stats.totalUsers.toLocaleString()} 
+            value={loading ? "Loading..." : (stats.totalUsers || 0).toLocaleString()} 
             patternId="p2"
           >
             <div className="text-xs text-white hover:translate-y-2 duration-700">
@@ -146,7 +160,7 @@ export default function Dashboard() {
 
           <PatternCard 
             title="Total Orders" 
-            value={loading ? "Loading..." : stats.totalOrders.toLocaleString()} 
+            value={loading ? "Loading..." : (stats.totalOrders || 0).toLocaleString()} 
             patternId="p3"
           >
             <div className="text-xs text-white hover:translate-y-2 duration-700">
@@ -156,7 +170,7 @@ export default function Dashboard() {
 
           <PatternCard 
             title="Total Products" 
-            value={loading ? "Loading..." : stats.totalProducts.toLocaleString()} 
+            value={loading ? "Loading..." : (stats.totalProducts || 0).toLocaleString()} 
             patternId="p4"
           >
             <div className="text-xs text-white hover:translate-y-2 duration-700">
@@ -174,15 +188,15 @@ export default function Dashboard() {
         </div>
 
         {/* Line & Pie Charts */}
-        <div className="col-span-12 grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="col-span-12 grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
-            className="col-span-1 lg:col-span-2 bg-white p-4 rounded-2xl shadow-sm"
+            className="lg:col-span-2 bg-white p-4 lg:p-6 rounded-2xl shadow-sm"
           >
             <h3 className="text-md font-medium mb-2">Sales & Users</h3>
-            <div className="w-full h-56">
+            <div className="w-full h-48 lg:h-56">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={salesData}>
                   <XAxis dataKey="month" />
@@ -199,13 +213,13 @@ export default function Dashboard() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.05 }}
-            className="bg-white p-4 rounded-2xl shadow-sm"
+            className="bg-white p-4 lg:p-6 rounded-2xl shadow-sm"
           >
             <h3 className="text-md font-medium mb-2">Product Mix</h3>
-            <div className="w-full h-56 flex items-center justify-center">
+            <div className="w-full h-48 lg:h-56 flex items-center justify-center">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie data={productData} dataKey="value" nameKey="name" outerRadius={70} fill="#8884d8">
+                  <Pie data={productData} dataKey="value" nameKey="name" outerRadius={60} fill="#8884d8">
                     {productData.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
@@ -218,9 +232,9 @@ export default function Dashboard() {
         </div>
 
         {/* Bar Chart */}
-        <div className="col-span-12 bg-white p-4 rounded-2xl shadow-sm mt-6">
+        <div className="col-span-12 bg-white p-4 lg:p-6 rounded-2xl shadow-sm mt-6">
           <h3 className="text-md font-medium mb-4">Sales by Category</h3>
-          <div className="w-full h-64">
+          <div className="w-full h-48 lg:h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={salesData}>
                 <XAxis dataKey="month" />
@@ -233,26 +247,28 @@ export default function Dashboard() {
         </div>
 
         {/* Top Products Table */}
-        <div className="col-span-12 bg-white p-4 rounded-2xl shadow-sm mt-6">
+        <div className="col-span-12 bg-white p-4 lg:p-6 rounded-2xl shadow-sm mt-6">
           <h3 className="text-md font-medium mb-4">Top Products</h3>
-          <table className="w-full text-sm text-left text-slate-600">
-            <thead className="text-xs uppercase bg-slate-50">
-              <tr>
-                <th className="px-4 py-2">Name</th>
-                <th className="px-4 py-2">Category</th>
-                <th className="px-4 py-2">Sales</th>
-              </tr>
-            </thead>
-            <tbody>
-              {topProducts.map((product, index) => (
-                <tr key={index} className="border-t">
-                  <td className="px-4 py-2">{product.name}</td>
-                  <td className="px-4 py-2">{product.category}</td>
-                  <td className="px-4 py-2">${product.sales}</td>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left text-slate-600 min-w-full">
+              <thead className="text-xs uppercase bg-slate-50">
+                <tr>
+                  <th className="px-2 lg:px-4 py-2">Name</th>
+                  <th className="px-2 lg:px-4 py-2">Category</th>
+                  <th className="px-2 lg:px-4 py-2">Sales</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {topProducts.map((product, index) => (
+                  <tr key={index} className="border-b hover:bg-gray-50">
+                    <td className="px-2 lg:px-4 py-2">{product.name}</td>
+                    <td className="px-2 lg:px-4 py-2 text-gray-600">{product.category}</td>
+                    <td className="px-2 lg:px-4 py-2 font-medium">{product.sales}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </main>
 

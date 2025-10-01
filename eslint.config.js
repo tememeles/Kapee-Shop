@@ -19,5 +19,19 @@ export default tseslint.config([
       ecmaVersion: 2020,
       globals: globals.browser,
     },
+    rules: {
+      // Disable ESLint warnings that are common in backend development
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unused-vars': ['error', { 
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
+        caughtErrorsIgnorePattern: '^_'
+      }],
+      // Allow Express route handlers without explicit return types
+      '@typescript-eslint/explicit-function-return-type': 'off',
+      '@typescript-eslint/no-misused-promises': 'off',
+      // Allow console statements for server logging
+      'no-console': 'off',
+    }
   },
 ])

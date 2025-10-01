@@ -17,6 +17,7 @@ const Products = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   
   // Image upload states
@@ -42,11 +43,23 @@ const Products = () => {
     try {
       setLoading(true);
       const response = await axios.get("http://localhost:5000/api/products");
-      setProducts(response.data);
+      console.log('Products API Response:', response.data);
+      
+      // Handle the API response structure: { success: true, count: number, products: Product[] }
+      if (response.data && response.data.products && Array.isArray(response.data.products)) {
+        setProducts(response.data.products);
+      } else if (Array.isArray(response.data)) {
+        // Fallback for direct array response
+        setProducts(response.data);
+      } else {
+        console.error('Expected products array, got:', response.data);
+        setProducts([]);
+      }
       setError(null);
     } catch (err) {
       setError("Failed to fetch products");
       console.error("Error fetching products:", err);
+      setProducts([]); // Set empty array on error
     } finally {
       setLoading(false);
     }
@@ -54,7 +67,44 @@ const Products = () => {
 
   const handleAddProduct = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formProduct.productname || !formProduct.category) return;
+    
+    // Clear previous messages
+    setError(null);
+    setSuccess(null);
+    
+    // Valid categories as per backend model
+    const validCategories = ["Electronics", "Clothing", "Books", "Home", "Sports", "Beauty", "Toys", "Other"];
+    
+    // Validate all required fields exactly as backend expects
+    if (!formProduct.productname.trim()) {
+      setError("Product name is required");
+      return;
+    }
+    
+    if (!formProduct.productdescrib.trim()) {
+      setError("Product description is required");
+      return;
+    }
+    
+    if (!formProduct.category || !validCategories.includes(formProduct.category)) {
+      setError("Please select a valid category");
+      return;
+    }
+    
+    if (formProduct.productprice == null || formProduct.productprice < 0) {
+      setError("Product price must be 0 or greater");
+      return;
+    }
+    
+    if (formProduct.productquantity == null || formProduct.productquantity < 0 || !Number.isInteger(formProduct.productquantity)) {
+      setError("Product quantity must be a non-negative integer");
+      return;
+    }
+    
+    if (formProduct.productquantity < 0) {
+      setError("Product quantity cannot be negative");
+      return;
+    }
 
     try {
       setLoading(true);
@@ -65,9 +115,39 @@ const Products = () => {
         imageUrl = await uploadImageToCloudinary(selectedFile);
       }
       
-      const productData = { ...formProduct, image: imageUrl };
+      const productData = { 
+        ...formProduct, 
+        image: imageUrl,
+        productprice: Number(formProduct.productprice),
+        productquantity: Number(formProduct.productquantity)
+      };
+      console.log('Sending product data:', productData);
+      console.log('Data types:', {
+        productname: typeof productData.productname,
+        productdescrib: typeof productData.productdescrib,
+        productprice: typeof productData.productprice,
+        productquantity: typeof productData.productquantity,
+        values: {
+          productname: productData.productname,
+          productdescrib: productData.productdescrib,
+          productprice: productData.productprice,
+          productquantity: productData.productquantity
+        }
+      });
       const response = await axios.post("http://localhost:5000/api/products", productData);
-      setProducts([...products, response.data]);
+      
+      // Add the new product to the list immediately
+      if (response.data.success && response.data.product) {
+        setProducts([...products, response.data.product]);
+        setError(null);
+        setSuccess("Product added successfully!");
+        
+        // Clear success message after 3 seconds
+        setTimeout(() => setSuccess(null), 3000);
+      } else {
+        // Fallback: refetch all products to ensure consistency
+        await fetchProducts();
+      }
       
       // Reset form and image states
       setFormProduct({
@@ -81,9 +161,26 @@ const Products = () => {
       setSelectedFile(null);
       setImagePreview(null);
       setError(null);
-    } catch (err) {
-      setError(selectedFile ? "Failed to upload image or add product" : "Failed to add product");
+      setSuccess("Product added successfully!");
+      
+      // Clear success message after 3 seconds
+      setTimeout(() => {
+        setSuccess(null);
+      }, 3000);
+    } catch (err: any) {
       console.error("Error adding product:", err);
+      
+      // Clear any success message when there's an error
+      setSuccess(null);
+      
+      // Show specific error message from server
+      if (err.response && err.response.data && err.response.data.error) {
+        setError(err.response.data.error);
+      } else if (err.response && err.response.data && err.response.data.message) {
+        setError(err.response.data.message);
+      } else {
+        setError(selectedFile ? "Failed to upload image or add product" : "Failed to add product");
+      }
     } finally {
       setLoading(false);
     }
@@ -104,7 +201,15 @@ const Products = () => {
       
       const productData = { ...formProduct, image: imageUrl };
       const response = await axios.put(`http://localhost:5000/api/products/${editingProduct._id}`, productData);
-      setProducts(products.map(p => p._id === editingProduct._id ? response.data : p));
+      
+      // Safely update products array
+      if (Array.isArray(products)) {
+        setProducts(products.map(p => p._id === editingProduct._id ? response.data : p));
+      } else {
+        // If products is not an array, refetch all products
+        await fetchProducts();
+      }
+      
       cancelEdit();
       setError(null);
     } catch (err) {
@@ -204,49 +309,66 @@ const Products = () => {
   };
 
   return (
-    <div className="bg-gray-50 ml-40 p-6 min-h-screen rounded-xl">
+    <div className="bg-gray-50 ml-0 lg:ml-40 p-4 lg:p-6 min-h-screen rounded-xl mt-16 lg:mt-0">
       {/* Header */}
-      <h1 className="text-2xl font-bold text-gray-700 mb-6">Product List</h1>
+      <h1 className="text-xl lg:text-2xl font-bold text-gray-700 mb-4 lg:mb-6">Product List</h1>
 
       {/* Add/Edit Product Form */}
-      <form onSubmit={editingProduct ? handleUpdateProduct : handleAddProduct} className="grid grid-cols-6 gap-2 mb-6 bg-white p-4 rounded shadow">
+      <form onSubmit={editingProduct ? handleUpdateProduct : handleAddProduct} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-2 lg:gap-2 mb-6 bg-white p-4 rounded shadow">
         <input
           type="text"
           placeholder="Product Name"
           value={formProduct.productname}
           onChange={(e) => setFormProduct({ ...formProduct, productname: e.target.value })}
-          className="border rounded px-3 py-2"
+          className="border rounded px-3 py-2 w-full"
           required
         />
         <textarea
           placeholder="Description"
           value={formProduct.productdescrib}
           onChange={(e) => setFormProduct({ ...formProduct, productdescrib: e.target.value })}
-          className="border rounded px-3 py-2"
+          className="border rounded px-3 py-2 w-full sm:col-span-2 lg:col-span-1"
           required
         />
-        <input
-          type="text"
-          placeholder="Category"
+        <select
           value={formProduct.category}
           onChange={(e) => setFormProduct({ ...formProduct, category: e.target.value })}
-          className="border rounded px-3 py-2"
+          className="border rounded px-3 py-2 w-full"
           required
-        />
+        >
+          <option value="">Select Category</option>
+          <option value="Electronics">Electronics</option>
+          <option value="Clothing">Clothing</option>
+          <option value="Books">Books</option>
+          <option value="Home">Home</option>
+          <option value="Sports">Sports</option>
+          <option value="Beauty">Beauty</option>
+          <option value="Toys">Toys</option>
+          <option value="Other">Other</option>
+        </select>
         <input
           type="number"
           placeholder="Price"
           value={formProduct.productprice || ""}
-          onChange={(e) => setFormProduct({ ...formProduct, productprice: +e.target.value })}
+          onChange={(e) => setFormProduct({ 
+            ...formProduct, 
+            productprice: e.target.value === "" ? 0 : Number(e.target.value) 
+          })}
           className="border rounded px-3 py-2"
+          min="0"
+          step="0.01"
           required
         />
         <input
           type="number"
           placeholder="Quantity"
           value={formProduct.productquantity || ""}
-          onChange={(e) => setFormProduct({ ...formProduct, productquantity: +e.target.value })}
+          onChange={(e) => setFormProduct({ 
+            ...formProduct, 
+            productquantity: e.target.value === "" ? 0 : Number(e.target.value) 
+          })}
           className="border rounded px-3 py-2"
+          min="0"
           required
         />
         {/* Image Upload Section */}
@@ -342,6 +464,13 @@ const Products = () => {
         </div>
       )}
 
+      {/* Success Display */}
+      {success && (
+        <div className="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
+          {success}
+        </div>
+      )}
+
       {/* Loading Display */}
       {loading && (
         <div className="mb-4 p-4 bg-blue-100 border border-blue-400 text-blue-700 rounded">
@@ -365,7 +494,7 @@ const Products = () => {
             </tr>
           </thead>
           <tbody>
-            {products.map((product) => (
+            {Array.isArray(products) && products.length > 0 ? products.map((product) => (
               <tr key={product._id} className="hover:bg-gray-50 transition">
                 <td className="px-4 py-2 border">
                   {product.image && (
@@ -395,10 +524,16 @@ const Products = () => {
                   </button>
                 </td>
               </tr>
-            ))}
-            {products.length === 0 && !loading && (
+            )) : (
               <tr>
-                <td colSpan={8} className="text-center py-4 text-gray-500">
+                <td colSpan={7} className="text-center py-4 text-gray-500">
+                  {loading ? 'Loading products...' : 'No products available.'}
+                </td>
+              </tr>
+            )}
+            {Array.isArray(products) && products.length === 0 && !loading && (
+              <tr>
+                <td colSpan={7} className="text-center py-4 text-gray-500">
                   No products found.
                 </td>
               </tr>

@@ -1,6 +1,7 @@
 
 
 import { useEffect, useState } from "react";
+import { MdDelete } from "react-icons/md";
 
 type Order = {
   _id: string;
@@ -64,13 +65,61 @@ export default function Orders() {
   const totalRevenue = orders.reduce((sum, order) => sum + (order.price * order.quantity), 0);
   const uniqueCustomers = new Set(orders.map(order => order.userId).filter(Boolean)).size;
 
+  // Delete order function
+  const handleDeleteOrder = async (orderId: string, productName: string) => {
+    if (window.confirm(`Are you sure you want to delete the order for "${productName}"? This action cannot be undone.`)) {
+      try {
+        setLoading(true);
+        const response = await fetch(`http://localhost:5000/api/orders/${orderId}`, {
+          method: 'DELETE',
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to delete order');
+        }
+
+        // Remove the order from local state
+        const updatedOrders = orders.filter(order => order._id !== orderId);
+        setOrders(updatedOrders);
+        setFilteredOrders(updatedOrders.filter(order => {
+          let filtered = true;
+          
+          if (statusFilter !== 'all') {
+            filtered = filtered && order.status === statusFilter;
+          }
+          
+          if (searchTerm) {
+            filtered = filtered && (
+              order.userName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+              order.userEmail?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+              order.product.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+          }
+          
+          return filtered;
+        }));
+        
+        setError(null);
+        
+        // Show success message
+        alert('Order deleted successfully!');
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to delete order');
+        console.error('Error deleting order:', err);
+        alert('Failed to delete order. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
 
   return (
-    <div className="p-8 ml-40 bg-slate-50 min-h-screen">
-      <h2 className="text-2xl font-bold mb-6">Orders Management</h2>
+    <div className="p-4 lg:p-8 ml-0 lg:ml-40 bg-slate-50 min-h-screen mt-16 lg:mt-0">
+      <h2 className="text-xl lg:text-2xl font-bold mb-4 lg:mb-6">Orders Management</h2>
       
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 mb-4 lg:mb-6">
         <div className="bg-white rounded-lg shadow p-6">
           <div className="flex items-center justify-between">
             <div>
@@ -154,25 +203,26 @@ export default function Orders() {
           <div className="mb-4 text-sm text-gray-600">
             Showing {filteredOrders.length} of {totalOrders} orders
           </div>
-          <div className="overflow-x-auto">
-            <table className="min-w-full bg-white rounded-xl shadow">
+          <div className="overflow-x-auto bg-white rounded-xl shadow">
+            <table className="min-w-full">
             <thead className="bg-slate-100 text-slate-700">
               <tr>
-                <th className="text-left px-6 py-3">Order ID</th>
-                <th className="text-left px-6 py-3">Customer</th>
-                <th className="text-left px-6 py-3">Email</th>
-                <th className="text-left px-6 py-3">Image</th>
-                <th className="text-left px-6 py-3">Product</th>
-                <th className="text-left px-6 py-3">Quantity</th>
-                <th className="text-left px-6 py-3">Price</th>
-                <th className="text-left px-6 py-3">Status</th>
-                <th className="text-left px-6 py-3">Date</th>
+                <th className="text-left px-2 lg:px-6 py-3 text-xs lg:text-sm">Order ID</th>
+                <th className="text-left px-2 lg:px-6 py-3 text-xs lg:text-sm">Customer</th>
+                <th className="text-left px-2 lg:px-6 py-3 text-xs lg:text-sm hidden sm:table-cell">Email</th>
+                <th className="text-left px-2 lg:px-6 py-3 text-xs lg:text-sm">Image</th>
+                <th className="text-left px-2 lg:px-6 py-3 text-xs lg:text-sm">Product</th>
+                <th className="text-left px-2 lg:px-6 py-3 text-xs lg:text-sm">Quantity</th>
+                <th className="text-left px-2 lg:px-6 py-3 text-xs lg:text-sm">Price</th>
+                <th className="text-left px-2 lg:px-6 py-3 text-xs lg:text-sm">Status</th>
+                <th className="text-left px-2 lg:px-6 py-3 text-xs lg:text-sm hidden md:table-cell">Date</th>
+                <th className="text-left px-2 lg:px-6 py-3 text-xs lg:text-sm">Actions</th>
               </tr>
             </thead>
             <tbody>
               {filteredOrders.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="px-6 py-12 text-center text-gray-500">
+                  <td colSpan={10} className="px-6 py-12 text-center text-gray-500">
                     {orders.length === 0 ? "No orders found." : "No orders match your filters."}
                   </td>
                 </tr>
@@ -185,29 +235,29 @@ export default function Orders() {
                   
                   return (
                     <tr key={order._id} className="border-t hover:bg-gray-50">
-                      <td className="px-6 py-4 font-medium text-slate-800 text-xs">{order._id.slice(-8)}</td>
-                      <td className="px-6 py-4">
+                      <td className="px-2 lg:px-6 py-4 font-medium text-slate-800 text-xs lg:text-sm">{order._id.slice(-8)}</td>
+                      <td className="px-2 lg:px-6 py-4">
                         <div className="flex flex-col">
-                          <span className="font-medium text-slate-900">{order.userName || 'Guest'}</span>
+                          <span className="font-medium text-slate-900 text-xs lg:text-sm">{order.userName || 'Guest'}</span>
                           <span className="text-xs text-slate-500">ID: {order.userId?.slice(-8) || 'N/A'}</span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-sm text-slate-600">{order.userEmail || 'N/A'}</td>
-                      <td className="px-6 py-4">
+                      <td className="px-2 lg:px-6 py-4 text-xs lg:text-sm text-slate-600 hidden sm:table-cell">{order.userEmail || 'N/A'}</td>
+                      <td className="px-2 lg:px-6 py-4">
                         <img 
                           src={imgSrc}
                           alt={order.product} 
-                          className="w-12 h-12 object-cover rounded border"
+                          className="w-8 h-8 lg:w-12 lg:h-12 object-cover rounded border"
                           onError={(e) => {
                             console.log('Image failed to load:', order.image);
                             e.currentTarget.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg>';
                           }}
                         />
                       </td>
-                      <td className="px-6 py-4">{order.product}</td>
-                      <td className="px-6 py-4">{order.quantity}</td>
-                      <td className="px-6 py-4 font-semibold">${order.price}</td>
-                      <td className="px-6 py-4">
+                      <td className="px-2 lg:px-6 py-4 text-xs lg:text-sm">{order.product}</td>
+                      <td className="px-2 lg:px-6 py-4 text-xs lg:text-sm">{order.quantity}</td>
+                      <td className="px-2 lg:px-6 py-4 font-semibold text-xs lg:text-sm">${order.price}</td>
+                      <td className="px-2 lg:px-6 py-4">
                         <span
                           className={`text-xs font-medium px-2 py-1 rounded-full ${
                             order.status === "pending"
@@ -223,6 +273,16 @@ export default function Orders() {
                         </span>
                       </td>
                       <td className="px-6 py-4 text-slate-500">{new Date(order.createdAt).toLocaleDateString()}</td>
+                      <td className="px-6 py-4">
+                        <button
+                          onClick={() => handleDeleteOrder(order._id, order.product)}
+                          disabled={loading}
+                          className="p-2 text-red-600 hover:bg-red-50 rounded-md transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                          title="Delete Order"
+                        >
+                          <MdDelete className="w-5 h-5" />
+                        </button>
+                      </td>
                     </tr>
                   );
                 })

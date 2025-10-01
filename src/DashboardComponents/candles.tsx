@@ -24,7 +24,7 @@ const candleData: CandlePoint[] = [
   { date: "Fri", open: 160, high: 170, low: 155, close: 165 },
 ];
 
-export default function CandlestickChart(): JSX.Element {
+export default function CandlestickChart() {
   return (
     <div className="w-full h-80 flex items-center justify-center">
       <div className="bg-gradient-to-br from-slate-50 to-blue-50 rounded-xl shadow-lg p-6 w-full max-w-2xl">

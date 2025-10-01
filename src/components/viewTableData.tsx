@@ -11,17 +11,25 @@ export default function ViewTableData() {
   useEffect(() => {
     if (!product && id) {
       setLoading(true);
-      fetch(`http://localhost:5000/api/products`)
-        .then((res) => res.json())
-        .then((data) => {
-          const found = data.find((item: any) => item._id === id);
-          if (found) {
-            setProduct(found);
-          } else {
-            setError('Product not found.');
+      console.log('ViewTableData - Fetching product ID:', id);
+      
+      // Use the specific product endpoint for better performance
+      fetch(`http://localhost:5000/api/products/${id}`)
+        .then((res) => {
+          if (!res.ok) {
+            throw new Error(`HTTP error! status: ${res.status}`);
           }
+          return res.json();
         })
-        .catch(() => setError('Failed to fetch product.'))
+        .then((data) => {
+          console.log('Single product API Response:', data);
+          console.log('Product image URL:', data.image);
+          setProduct(data);
+        })
+        .catch((err) => {
+          console.error('Fetch error:', err);
+          setError('Failed to fetch product.');
+        })
         .finally(() => setLoading(false));
     }
   }, [id, product]);
@@ -38,13 +46,23 @@ export default function ViewTableData() {
       <h2 className="text-2xl font-bold text-center">Product Details</h2>
       <div className="flex flex-col items-center gap-4">
         <img
-          src={product.image ? new URL(`../assets/${product.image}`, import.meta.url).href : product.img}
-          alt={product.name}
+          src={product.image && product.image.startsWith('http')
+            ? product.image
+            : product.image 
+              ? new URL(`../assets/${product.image}`, import.meta.url).href
+              : new URL('../assets/kapee.png', import.meta.url).href}
+          alt={product.productname || product.name || 'Product image'}
           className="w-48 h-48 object-cover rounded shadow"
+          onError={(e) => {
+            console.log('Image failed to load:', product.image);
+            e.currentTarget.src = new URL('../assets/kapee.png', import.meta.url).href;
+          }}
         />
-  <div className="text-lg font-semibold">{product.name || product.productname}</div>
-  <div className="text-sm text-gray-600">{product.category}</div>
-  <div className="text-blue-600 font-bold">{product.priceRange || `$${product.price ?? product.productprice}`}</div>
+        <div className="text-lg font-semibold">{product.productname || product.name}</div>
+        <div className="text-sm text-gray-600">{product.category}</div>
+        <div className="text-blue-600 font-bold">
+          {product.priceRange || `$${product.productprice || product.price}`}
+        </div>
         {product.label && (
           <span className="bg-yellow-400 text-black px-3 py-1 rounded text-xs font-bold">
             {product.label}
