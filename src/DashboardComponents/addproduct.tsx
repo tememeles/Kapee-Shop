@@ -200,7 +200,7 @@ const Products = () => {
       }
       
       const productData = { ...formProduct, image: imageUrl };
-      const response = await axios.put(`http://localhost:5000/api/products/${editingProduct._id}`, productData);
+      const response = await axios.put(`https://backend-repo-ucns.onrender.com/api/products/${editingProduct._id}`, productData);
       
       // Safely update products array
       if (Array.isArray(products)) {

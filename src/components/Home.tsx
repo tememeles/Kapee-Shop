@@ -29,23 +29,30 @@ const Sidebar = () => {
       <div className="flex flex-col sm:flex-row border border-black min-h-16 sm:h-auto justify-between items-center p-4 sm:p-0 gap-4 sm:gap-0">
         <img src={Kapee} alt="Kapee Logo" className="h-8 sm:h-12 order-1" />
         
-        {/* Search Section */}
+        {/* Search Section - Samsung A15 Optimized */}
         <div className="flex flex-col sm:flex-row w-full sm:w-auto order-3 sm:order-2 gap-2 sm:gap-0 sm:pr-48">
           <div className="flex w-full sm:w-auto">
             <input 
-              className="flex-1 sm:w-80 md:w-96 h-10 sm:h-12 px-3 border border-black text-sm" 
+              className="flex-1 sm:w-80 md:w-96 h-10 sm:h-12 px-3 border border-black text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400" 
               type="text" 
-              placeholder="Search products, categories..." 
+              placeholder="Search products..." 
             />
-            <select className="w-auto sm:w-auto border border-black h-10 sm:h-12 px-2 text-sm" name="All Categories">
-              <option value="">All Categories</option>
+            <select className="w-24 sm:w-auto border border-black h-10 sm:h-12 px-1 sm:px-2 text-xs sm:text-sm bg-white focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 appearance-none" 
+                    name="All Categories"
+                    style={{
+                      backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e")`,
+                      backgroundPosition: 'right 0.25rem center',
+                      backgroundRepeat: 'no-repeat',
+                      backgroundSize: '1rem'
+                    }}>
+              <option value="">All</option>
               <option value="">Accessories</option>
               <option value="">Analog</option>
               <option value="">Anklets</option>
-              <option value="">Beauty Accessories</option>
+              <option value="">Beauty</option>
               <option value="">Belts</option>
               <option value="">Bracelets</option>
-              <option value="">Casual shoes</option>
+              <option value="">Shoes</option>
               <option value="">Digital</option>
               <option value="">Dresses</option>
               <option value="">Earrings</option>
