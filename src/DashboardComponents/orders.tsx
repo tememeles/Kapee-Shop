@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { MdDelete } from "react-icons/md";
+import { getApiUrl } from '../config/api';
 
 type Order = {
   _id: string;
@@ -25,7 +26,7 @@ export default function Orders() {
   const [searchTerm, setSearchTerm] = useState<string>('');
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/orders")
+    fetch(getApiUrl("api/orders"))
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch orders");
         return res.json();
@@ -70,7 +71,7 @@ export default function Orders() {
     if (window.confirm(`Are you sure you want to delete the order for "${productName}"? This action cannot be undone.`)) {
       try {
         setLoading(true);
-        const response = await fetch(`http://localhost:5000/api/orders/${orderId}`, {
+        const response = await fetch(getApiUrl(`api/orders/${orderId}`), {
           method: 'DELETE',
         });
 

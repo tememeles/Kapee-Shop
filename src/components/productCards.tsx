@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../hooks/useWishlist';
 import ProductViewModal from './ProductViewModal';
+import { getApiUrl } from '../config/api';
 
 export interface Product {
   _id: string;
@@ -38,7 +39,7 @@ export function ProductCardsDisplay() {
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/products')
+    fetch(getApiUrl('api/products'))
       .then((res) => res.json())
       .then((data) => {
         console.log('API Response:', data);

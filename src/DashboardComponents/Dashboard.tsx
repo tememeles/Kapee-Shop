@@ -17,6 +17,7 @@ import {
   Legend,
 } from "recharts";
 import { motion } from "framer-motion";
+import { getApiUrl } from '../config/api';
 
 type SalesPoint = {
   month: string;
@@ -83,9 +84,9 @@ export default function Dashboard() {
         
         // Fetch data from all endpoints concurrently
         const [usersResponse, ordersResponse, productsResponse] = await Promise.all([
-          axios.get('http://localhost:5000/api/users'),
-          axios.get('http://localhost:5000/api/orders'),
-          axios.get('http://localhost:5000/api/products')
+          axios.get(getApiUrl('api/users')),
+          axios.get(getApiUrl('api/orders')),
+          axios.get(getApiUrl('api/products'))
         ]);
 
         // Debug logging

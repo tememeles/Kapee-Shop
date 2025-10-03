@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
+import { getApiUrl } from '../config/api';
 
 interface Product {
   _id: string;
@@ -53,7 +54,7 @@ const ProductViewModal: React.FC<ProductViewModalProps> = ({
         setLoading(true);
         setProduct(null);
         
-        fetch(`http://localhost:5000/api/products/${productId}`)
+        fetch(getApiUrl(`api/products/${productId}`))
           .then((res) => {
             if (!res.ok) {
               throw new Error(`HTTP error! status: ${res.status}`);

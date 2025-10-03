@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../hooks/useWishlist';
 import ProductViewModal from './ProductViewModal';
+import { getApiUrl } from '../config/api';
 
 export interface BestSellingProduct {
   _id: string;
@@ -39,7 +40,10 @@ const BestSellingProducts: React.FC = () => {
   const fetchBestSellingProducts = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:5000/api/bestselling/featured?limit=8');
+      const apiUrl = getApiUrl('api/bestselling/featured?limit=8');
+      console.log('BestSelling - Attempting to fetch from:', apiUrl);
+      
+      const response = await axios.get(apiUrl);
       console.log('BestSelling - API Response:', response.data);
       console.log('BestSelling - Product IDs check:', response.data.map((p: any) => ({
         name: p.productname,
@@ -49,7 +53,15 @@ const BestSellingProducts: React.FC = () => {
       setProducts(response.data);
       setError(null);
     } catch (err) {
-      setError('Failed to fetch best selling products');
+      console.error('BestSelling - Detailed Error:', err);
+      if (axios.isAxiosError(err)) {
+        console.error('BestSelling - Response Status:', err.response?.status);
+        console.error('BestSelling - Response Data:', err.response?.data);
+        console.error('BestSelling - Response Headers:', err.response?.headers);
+        setError(`Failed to fetch products: ${err.response?.status} - ${err.response?.statusText || err.message}`);
+      } else {
+        setError('Failed to fetch best selling products');
+      }
       console.error('Error fetching best selling products:', err);
     } finally {
       setLoading(false);

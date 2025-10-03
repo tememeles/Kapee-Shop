@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { getApiUrl } from '../config/api';
 import img1 from "../assets/10.jpeg";
 import img2 from "../assets/17.jpg";
 import img3 from "../assets/11.jpeg";
@@ -42,7 +43,7 @@ const BlogPage = () => {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/blogs")
+      .get(getApiUrl("api/blogs"))
       .then((res) => {
         setBlogs(res.data);
         setLoading(false);

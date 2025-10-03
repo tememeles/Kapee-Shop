@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { MdDelete, MdEdit, MdSave, MdCancel, MdAdd } from 'react-icons/md';
+import { getApiUrl } from '../config/api';
 
 interface BestSellingProduct {
   _id: string;
@@ -74,7 +75,7 @@ const BestSellingManagement: React.FC = () => {
   const fetchBestSellingProducts = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:5000/api/bestselling');
+      const response = await axios.get(getApiUrl('api/bestselling'));
       setBestSellingProducts(Array.isArray(response.data) ? response.data : []);
       setError(null);
     } catch (_err) {
@@ -88,7 +89,7 @@ const BestSellingManagement: React.FC = () => {
 
   const fetchAllProducts = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/products');
+      const response = await axios.get(getApiUrl('api/products'));
       
       // Handle the API response structure: { success: true, count: number, products: Product[] }
       if (response.data && response.data.products && Array.isArray(response.data.products)) {
@@ -130,7 +131,7 @@ const BestSellingManagement: React.FC = () => {
 
     try {
       setUploadingImage(true);
-      const response = await axios.post('http://localhost:5000/api/upload', formData, {
+      const response = await axios.post(getApiUrl('api/upload'), formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -222,7 +223,7 @@ const BestSellingManagement: React.FC = () => {
 
     try {
       setLoading(true);
-      const response = await axios.put(`http://localhost:5000/api/bestselling/${editingProduct._id}`, editForm);
+      const response = await axios.put(getApiUrl(`api/bestselling/${editingProduct._id}`), editForm);
       setBestSellingProducts(bestSellingProducts.map(product => 
         product._id === editingProduct._id ? response.data : product
       ));
@@ -242,7 +243,7 @@ const BestSellingManagement: React.FC = () => {
     if (window.confirm('Are you sure you want to remove this product from best selling?')) {
       try {
         setLoading(true);
-        await axios.delete(`http://localhost:5000/api/bestselling/${id}`);
+        await axios.delete(getApiUrl(`api/bestselling/${id}`));
         setBestSellingProducts(bestSellingProducts.filter(product => product._id !== id));
         setSuccess('Product removed from best selling successfully!');
         setTimeout(() => setSuccess(null), 3000);
@@ -315,7 +316,7 @@ const BestSellingManagement: React.FC = () => {
       console.log('📤 Sending POST request to /api/bestselling');
       console.log('📦 Request payload:', JSON.stringify(newBestSelling, null, 2));
 
-      const response = await axios.post('http://localhost:5000/api/bestselling', newBestSelling);
+      const response = await axios.post(getApiUrl('api/bestselling'), newBestSelling);
       setBestSellingProducts([...bestSellingProducts, response.data]);
       setSuccess('✅ Product added to best selling successfully! Image hosted on Cloudinary.');
       setShowAddForm(false);

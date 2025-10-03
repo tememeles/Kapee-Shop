@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import ForgotPassword from "./ForgotPassword";
+import { getApiUrl } from '../config/api';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -19,7 +20,7 @@ const Login = () => {
     setSuccessMsg("");
 
     try {
-      const res = await fetch("http://localhost:5000/api/login", {
+      const res = await fetch(getApiUrl("api/login"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),

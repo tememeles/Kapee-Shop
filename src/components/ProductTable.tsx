@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import axios from "axios"
+import { getApiUrl } from '../config/api';
 
 interface ProductData {
     _id: string;
@@ -21,11 +22,11 @@ export default function ProductTable(){
         const fetchProducts = async () => {
             try {
                 setLoading(true);
-                const response = await axios.get('http://localhost:5000/api/products');
+                const response = await axios.get(getApiUrl('api/products'));
                 setProducts(response.data);
             } catch (error) {
                 console.error('Error fetching products:', error);
-                setError('Failed to fetch products from server. Make sure the backend is running on http://localhost:5000');
+                setError('Failed to fetch products from server. Please check your internet connection or try again later.');
             } finally {
                 setLoading(false);
             }
@@ -42,7 +43,7 @@ export default function ProductTable(){
     const handleDelete = async (id: string) => {
         if (window.confirm('Are you sure you want to delete this product?')) {
             try {
-                await axios.delete(`http://localhost:5000/api/products/${id}`);
+                await axios.delete(getApiUrl(`api/products/${id}`));
                 setProducts(products.filter(product => product._id !== id));
             } catch (error) {
                 console.error('Error deleting product:', error);

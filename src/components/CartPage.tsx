@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
+import { getApiUrl } from '../config/api';
 
 interface CartSidebarProps {
   isOpen: boolean;
@@ -38,7 +39,7 @@ const CartSidebar = ({ isOpen, onClose }: CartSidebarProps) => {
       }));
 
       // Create all orders in a single batch request
-      const response = await fetch('http://localhost:5000/api/orders/batch', {
+      const response = await fetch(getApiUrl('api/orders/batch'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

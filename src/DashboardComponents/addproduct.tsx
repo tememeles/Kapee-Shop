@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { MdDelete, MdEdit } from "react-icons/md";
 import axios from "axios";
+import { getApiUrl } from '../config/api';
 
 interface Product {
   _id: string;
@@ -42,7 +43,7 @@ const Products = () => {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const response = await axios.get("http://localhost:5000/api/products");
+      const response = await axios.get(getApiUrl("api/products"));
       console.log('Products API Response:', response.data);
       
       // Handle the API response structure: { success: true, count: number, products: Product[] }
@@ -134,7 +135,7 @@ const Products = () => {
           productquantity: productData.productquantity
         }
       });
-      const response = await axios.post("http://localhost:5000/api/products", productData);
+      const response = await axios.post(getApiUrl("api/products"), productData);
       
       // Add the new product to the list immediately
       if (response.data.success && response.data.product) {
@@ -200,7 +201,7 @@ const Products = () => {
       }
       
       const productData = { ...formProduct, image: imageUrl };
-      const response = await axios.put(`https://backend-repo-ucns.onrender.com/api/products/${editingProduct._id}`, productData);
+      const response = await axios.put(getApiUrl(`api/products/${editingProduct._id}`), productData);
       
       // Safely update products array
       if (Array.isArray(products)) {
@@ -271,7 +272,7 @@ const Products = () => {
 
     try {
       setUploadingImage(true);
-      const response = await axios.post('http://localhost:5000/api/upload', formData, {
+      const response = await axios.post(getApiUrl('api/upload'), formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -296,7 +297,7 @@ const Products = () => {
     if (window.confirm("Are you sure you want to delete this product?")) {
       try {
         setLoading(true);
-        await axios.delete(`http://localhost:5000/api/products/${id}`);
+        await axios.delete(getApiUrl(`api/products/${id}`));
         setProducts(products.filter((p) => p._id !== id));
         setError(null);
       } catch (err) {

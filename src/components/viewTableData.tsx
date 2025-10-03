@@ -1,5 +1,6 @@
 import { useParams, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { getApiUrl } from '../config/api';
 
 export default function ViewTableData() {
   const { id } = useParams();
@@ -14,7 +15,7 @@ export default function ViewTableData() {
       console.log('ViewTableData - Fetching product ID:', id);
       
       // Use the specific product endpoint for better performance
-      fetch(`http://localhost:5000/api/products/${id}`)
+      fetch(getApiUrl(`api/products/${id}`))
         .then((res) => {
           if (!res.ok) {
             throw new Error(`HTTP error! status: ${res.status}`);

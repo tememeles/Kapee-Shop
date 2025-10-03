@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { MdDelete, MdEdit, MdSave, MdCancel } from "react-icons/md";
 import { FaUser, FaUserShield, FaUsers } from "react-icons/fa";
 import axios from "axios";
+import { getApiUrl } from '../config/api';
 
 interface User {
   _id: string;
@@ -29,7 +30,7 @@ const Users = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const response = await axios.get("http://localhost:5000/api/users");
+      const response = await axios.get(getApiUrl("api/users"));
       setUsers(response.data);
       setError(null);
     } catch (err) {
@@ -44,7 +45,7 @@ const Users = () => {
     if (window.confirm("Are you sure you want to delete this user?")) {
       try {
         setLoading(true);
-        await axios.delete(`http://localhost:5000/api/users/${id}`);
+        await axios.delete(getApiUrl(`api/users/${id}`));
         setUsers(users.filter((user) => user._id !== id));
         setError(null);
       } catch (err) {
@@ -79,7 +80,7 @@ const Users = () => {
     
     try {
       setLoading(true);
-      const response = await axios.put(`http://localhost:5000/api/users/${editingUser._id}`, editForm);
+      const response = await axios.put(getApiUrl(`api/users/${editingUser._id}`), editForm);
       setUsers(users.map(user => user._id === editingUser._id ? response.data : user));
       setSuccess("User updated successfully!");
       setError(null);

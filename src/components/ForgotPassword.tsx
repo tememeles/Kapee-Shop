@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { getApiUrl } from '../config/api';
 
 interface ForgotPasswordProps {
   isOpen: boolean;
@@ -22,7 +23,7 @@ const ForgotPassword = ({ isOpen, onClose }: ForgotPasswordProps) => {
     setMessage("");
 
     try {
-      const response = await fetch("http://localhost:5000/api/otp/create", {
+      const response = await fetch(getApiUrl("api/otp/create"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
@@ -50,7 +51,7 @@ const ForgotPassword = ({ isOpen, onClose }: ForgotPasswordProps) => {
     setMessage("");
 
     try {
-      const response = await fetch("http://localhost:5000/api/otp/verify", {
+      const response = await fetch(getApiUrl("api/otp/verify"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, otp }),
@@ -89,7 +90,7 @@ const ForgotPassword = ({ isOpen, onClose }: ForgotPasswordProps) => {
     setMessage("");
 
     try {
-      const response = await fetch("http://localhost:5000/api/reset-password", {
+      const response = await fetch(getApiUrl("api/reset-password"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, newPassword }),
@@ -130,7 +131,7 @@ const ForgotPassword = ({ isOpen, onClose }: ForgotPasswordProps) => {
     setMessage("");
 
     try {
-      const response = await fetch("http://localhost:5000/api/otp/resend", {
+      const response = await fetch(getApiUrl("api/otp/resend"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
